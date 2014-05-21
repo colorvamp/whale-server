@@ -29,6 +29,7 @@ var _whale = function(){
 	};
 	this.get = {
 		host: function(){return whale.v.host;},
+		port: function(){return whale.v.port;},
 		method: function(){return whale.v.method;},
 		ip: function(){return whale.v.ip;},
 		url: function(){return whale.v.url;},

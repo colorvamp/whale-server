@@ -124,57 +124,52 @@ var query = whale.get.url().query;
 				delete require.cache[require.resolve(_api+'inc.common.js')];
 				return;
 			}else{
-				return php();
-			}
-		}
-
-		function php(){
-			/* If is a php controller, we should use launcher */
-			//FIXME pasarlo a un helper
-			var adr = req.connection.address();
-			var phpParams = new Buffer(params.join('/')).toString('base64');
-			var phpHeaders = '{"SERVER_NAME":"'+host+'","SERVER_ADDR":"'+adr.address+'","SERVER_PORT":"'+adr.port+'","REQUEST_URI":"'+whale.get.uri()+'","REMOTE_ADDR":"'+whale.get.ip()+'"}';
-			var phpPost = JSON.stringify(whale.get.post());
-			var phpCookie = JSON.stringify(whale.get.cookie());
-			var phpVars = ' -d "register_argc_argv=On" -d "expose_php=Off" -d "output_buffering=10000" ';
-			var phpVars = ' -c "'+path.node+'/php.api/php.ini" ';
-			//FIXME: faltan POST y GET
-			exec('cd "'+path.base+'" && php5-cgi -C '+phpVars+' "'+path.node+'/php.php" '+controller+' \''+phpParams+'\' \''+phpHeaders+'\' \''+phpCookie+'\' \''+phpPost+'\'',{encoding:'binary',maxBuffer:5000*1024},function(error,stdout,stderr){
-				if(stdout && stdout.substr(0,7) == 'Status:'){
-					var headers = whale.parse.header(stdout);
-					if(headers){
-						var status = (headers.status) ? parseInt(headers.status) : 200;
-						delete headers.status;
-						if(headers.location && status == 200){status = 302;}
-						res.writeHead(status,headers);
-						//FIXME:
-						var l = stdout.indexOf('\r\n\r\n');
-						if(l > 10){stdout = stdout.substr(l+4);}
+				var php = {
+					params: (new Buffer(params.join('/')).toString('base64')),
+					headers: '{"SERVER_NAME":"'+host+'","SERVER_ADDR":"'+whale.get.ip()+'","SERVER_PORT":"'+whale.get.port()+'","REQUEST_URI":"'+whale.get.uri()+'","REMOTE_ADDR":"'+whale.get.ip()+'"}',
+					post: JSON.stringify(whale.get.post()),
+					cookie: JSON.stringify(whale.get.cookie()),
+					//vars: ' -d "register_argc_argv=On" -d "expose_php=Off" -d "output_buffering=10000" '
+					vars: ' -c "'+path.node+'/php.api/php.ini" '
+				}
+				exec('cd "'+whale.path.base+'" && php5-cgi -C '+php.vars+' "'+whale.path.node+'/php.php" '+controller+' \''+php.params+'\' \''+php.headers+'\' \''+php.cookie+'\' \''+php.post+'\'',{encoding:'binary',maxBuffer:5000*1024},function(error,stdout,stderr){
+					if(stdout && stdout.substr(0,7) == 'Status:'){
+						var headers = whale.parse.header(stdout);
+						if(headers){
+							var status = (headers.status) ? parseInt(headers.status) : 200;
+							delete headers.status;
+							if(headers.location && status == 200){status = 302;}
+							res.writeHead(status,headers);
+							//FIXME:
+							var l = stdout.indexOf('\r\n\r\n');
+							if(l > 10){stdout = stdout.substr(l+4);}
+						}
 					}
-				}
 
 
-				if(stdout && stdout.substr(0,21) == '{"errorDescription":"' && (i = JSON.parse(stdout))){
-					console.log('Error on php launcher '+i.errorDescription);
-					//FIXME: mejorar
-					return whale.page.err(res);
-				}
+					if(stdout && stdout.substr(0,21) == '{"errorDescription":"' && (i = JSON.parse(stdout))){
+						console.log('Error on php launcher '+i.errorDescription);
+						//FIXME: mejorar
+						return whale.page.err(res);
+					}
 
-				//console.log('stdout: ' + stdout);
-				//console.log('stderr: ' + stderr);
-				if(error !== null) {
-					console.log('exec error: ' + error);
-				}
+					//console.log('stdout: ' + stdout);
+					//console.log('stderr: ' + stderr);
+					if(error !== null) {
+						console.log('exec error: ' + error);
+					}
 
-				/*var magic = new Buffer(stdout.substr(0,20),'binary');
-				magic = magic.toString('hex').toUpperCase();
-				switch(true){
-					case magic.substr(0,4) == 'FFD8':res.writeHead(200,{'Content-Type':'image/jpeg','Content-Length':stdout.length});
-				}*/
-				//console.log(magic);
+					/*var magic = new Buffer(stdout.substr(0,20),'binary');
+					magic = magic.toString('hex').toUpperCase();
+					switch(true){
+						case magic.substr(0,4) == 'FFD8':res.writeHead(200,{'Content-Type':'image/jpeg','Content-Length':stdout.length});
+					}*/
+					//console.log(magic);
 
-				return res.end(new Buffer(stdout,'binary'));
-			});
+					return res.end(new Buffer(stdout,'binary'));
+				});
+				//return phpb();
+			}
 		}
 
 	}).listen(1337,'127.0.0.1');

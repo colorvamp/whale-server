@@ -15,8 +15,8 @@
 
 	if(file_exists('whale.init.php')){include('whale.init.php');}
 	include_once($controller);
-	$params = isset($argv[2]) ? base64_decode($argv[2]) : 'main';
-	$params = explode('/',$params);
+	//$params = isset($argv[2]) ? base64_decode($argv[2]) : 'main';
+	$params = explode('/',$_SERVER['REQUEST_URI']);
 	$controller = basename($controller,'.php');
 
 	do{
