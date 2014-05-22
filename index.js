@@ -18,6 +18,7 @@
 	fs = require('fs'),
 	util = require('util'),
 	exec = require('child_process').exec,
+	spawn = require('child_process').spawn,
 	whale = require('./whale.js').whale;
 
 	global._whale = whale;
@@ -25,9 +26,12 @@
 	global._template = {};
 
 	/**** INI-LISTENER ****/
-	http.createServer(function(req,res){
+	var server = http.createServer(function(req,res){
 		if(!req.headers || !req.headers.host){return whale.page.p400(res);}
 		whale.parse.request(req);
+req.on('connect',function(rew,socket,head){
+		console.log(1);
+	});
 
 var i = false;
 
@@ -40,6 +44,12 @@ var i = false;
 			api: './servers/'+host+'/api/'
 		};
 global._whale.res = res;
+/*req.socket.write('HTTP/1.1 200 Connection Established\r\n' +
+                    'Proxy-agent: Node-Proxy\r\n' +
+                    '\r\n6655hola');
+return req.socket.end();
+//*/
+
 
 		if(!fs.existsSync(path.controllers)){return whale.page.err(res);}
 		var params = whale.get.uri();
@@ -122,55 +132,25 @@ var query = whale.get.url().query;
 				}
 				delete require.cache[require.resolve(controllerPath)];
 				delete require.cache[require.resolve(_api+'inc.common.js')];
-				return;
+				return false;
 			}else{
 				var php = {
 					params: (new Buffer(params.join('/')).toString('base64')),
 					headers: '{"SERVER_NAME":"'+host+'","SERVER_ADDR":"'+whale.get.ip()+'","SERVER_PORT":"'+whale.get.port()+'","REQUEST_URI":"'+whale.get.uri()+'","REMOTE_ADDR":"'+whale.get.ip()+'"}',
 					post: JSON.stringify(whale.get.post()),
+					get: JSON.stringify(whale.get.url().query),
 					cookie: JSON.stringify(whale.get.cookie()),
 					//vars: ' -d "register_argc_argv=On" -d "expose_php=Off" -d "output_buffering=10000" '
 					vars: ' -c "'+path.node+'/php.api/php.ini" '
 				}
-				exec('cd "'+whale.path.base+'" && php5-cgi -C '+php.vars+' "'+whale.path.node+'/php.php" '+controller+' \''+php.params+'\' \''+php.headers+'\' \''+php.cookie+'\' \''+php.post+'\'',{encoding:'binary',maxBuffer:5000*1024},function(error,stdout,stderr){
-					if(stdout && stdout.substr(0,7) == 'Status:'){
-						var headers = whale.parse.header(stdout);
-						if(headers){
-							var status = (headers.status) ? parseInt(headers.status) : 200;
-							delete headers.status;
-							if(headers.location && status == 200){status = 302;}
-							res.writeHead(status,headers);
-							//FIXME:
-							var l = stdout.indexOf('\r\n\r\n');
-							if(l > 10){stdout = stdout.substr(l+4);}
-						}
-					}
-
-
-					if(stdout && stdout.substr(0,21) == '{"errorDescription":"' && (i = JSON.parse(stdout))){
-						console.log('Error on php launcher '+i.errorDescription);
-						//FIXME: mejorar
-						return whale.page.err(res);
-					}
-
-					//console.log('stdout: ' + stdout);
-					//console.log('stderr: ' + stderr);
-					if(error !== null) {
-						console.log('exec error: ' + error);
-					}
-
-					/*var magic = new Buffer(stdout.substr(0,20),'binary');
-					magic = magic.toString('hex').toUpperCase();
-					switch(true){
-						case magic.substr(0,4) == 'FFD8':res.writeHead(200,{'Content-Type':'image/jpeg','Content-Length':stdout.length});
-					}*/
-					//console.log(magic);
-
-					return res.end(new Buffer(stdout,'binary'));
-				});
-				//return phpb();
+				var cgi = exec('cd "'+whale.path.base+'" && php5-cgi -C '+php.vars+' "'+whale.path.node+'/php.php" '+controller+' \''+php.params+'\' \''+php.headers+'\' \''+php.cookie+'\' \''+php.post+'\' \''+php.get+'\'',{maxBuffer:5000*1024});
+				req.socket.write('HTTP/1.1');
+				cgi.stdout.pipe(req.socket);
+				cgi.on('exit',function(){req.socket.end();});
+				return false;
 			}
 		}
 
-	}).listen(1337,'127.0.0.1');
+	});
+	server.listen(1337,'127.0.0.1');
 	console.log('Server running at http://127.0.0.1:1337/');

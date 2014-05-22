@@ -47,6 +47,7 @@ var _whale = function(){
 			if(data.url){whale.parse.url(data.url)}
 			if(data.headers.cookie){whale.parse.cookie(data.headers.cookie);}
 			if(data.method){whale.v.method = data.method;}
+			whale.v.post = false;
 		},
 		url: function(data){
 			var u = url.parse(data,true);
