@@ -44,11 +44,6 @@ var i = false;
 			api: './servers/'+host+'/api/'
 		};
 global._whale.res = res;
-/*req.socket.write('HTTP/1.1 200 Connection Established\r\n' +
-                    'Proxy-agent: Node-Proxy\r\n' +
-                    '\r\n6655hola');
-return req.socket.end();
-//*/
 
 
 		if(!fs.existsSync(path.controllers)){return whale.page.err(res);}
@@ -143,10 +138,20 @@ var query = whale.get.url().query;
 					//vars: ' -d "register_argc_argv=On" -d "expose_php=Off" -d "output_buffering=10000" '
 					vars: ' -c "'+path.node+'/php.api/php.ini" '
 				}
-				var cgi = exec('cd "'+whale.path.base+'" && php5-cgi -C '+php.vars+' "'+whale.path.node+'/php.php" '+controller+' \''+php.params+'\' \''+php.headers+'\' \''+php.cookie+'\' \''+php.post+'\' \''+php.get+'\'',{maxBuffer:5000*1024});
 				req.socket.write('HTTP/1.1');
-				cgi.stdout.pipe(req.socket);
-				cgi.on('exit',function(){req.socket.end();});
+				var cgi = spawn('php5-cgi',[
+					'-C',
+					'-c '+whale.path.node+'/php.api/php.ini',
+					whale.path.node+'/php.php',
+					controller,
+					php.params,
+					php.headers,
+					php.cookie,
+					php.post,
+					php.get
+				],{cwd:whale.path.base,encoding:'binary'});
+				cgi.stdout.on('data',function(data){req.socket.write(Buffer(data,'binary'));});
+				cgi.on('close',function(){req.socket.end();});
 				return false;
 			}
 		}
