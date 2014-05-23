@@ -28,10 +28,10 @@
 
 	if(file_exists('whale.init.php')){include('whale.init.php');}
 	include_once($controller);
-	//$params = isset($argv[2]) ? base64_decode($argv[2]) : 'main';
-	$params = array_diff(explode('/',$_SERVER['REQUEST_URI']),array(''));
-	if($params){array_shift($params);}
 	$controller = basename($controller,'.php');
+	//$params = isset($argv[2]) ? base64_decode($argv[2]) : 'main';
+	$params = array_values(array_diff(explode('/',$_SERVER['REQUEST_URI']),array('')));
+	if(isset($params[0]) && $params[0] == $controller){array_shift($params);}
 
 	do{
 //FIXME: hacer esto con node
