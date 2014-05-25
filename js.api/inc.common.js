@@ -15,7 +15,7 @@ var common = {
 			return p.hasOwnProperty(word) ? p[word] : false;
 		},
 		replace: function(blob,pool,reps){
-			if(!reps && !(reps = blob.match(/{%[a-zA-Z0-9_\.]+%}/g))){return blob;}
+			if(!reps && !(reps = blob.match(/{%[a-zA-Z0-9_\.:]+%}/g))){return blob;}
 			reps = reps.unique();
 
 			var notFound = {};
@@ -31,7 +31,7 @@ var common = {
 			}
 
 			/* Once replaced, check for new words to be replaced */
-			reps = blob.match(/{%[a-zA-Z0-9_\.]+%}/g);
+			reps = blob.match(/{%[a-zA-Z0-9_\.:]+%}/g);
 			if(!reps){return blob;}
 			reps = reps.unique();
 
@@ -51,7 +51,7 @@ var common = {
 			if(!callback){callback = function(blob){_whale.res.end(blob);};}
 			var pool = (global._template) ? global._template : {};
 
-			var b = 'base/a.php';
+			var b = 'base/base.app.full.php';
 			var base = false;
 			data = fs.readFile(_whale.path.views+t,'utf-8',function(err,data){
 				pool.MAIN = data;
