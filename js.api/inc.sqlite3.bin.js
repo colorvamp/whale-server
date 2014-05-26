@@ -51,7 +51,7 @@ var sqlite3 = {
 			rows.push(row);
 		});
 	},
-	exec: function(db,q,cb){
+	exec: function(db,q,cb,nowait){
 		sqlite3.v.lastQueryError = '';
 		sqlite3.v.lastQueryErrno = 0;
 		var buffer = '';
@@ -61,11 +61,10 @@ var sqlite3 = {
 			//console.log(q);
 			//console.log('\n'+data);
 			buffer = buffer.split('"¸\n');
-			if(data.length > 4){db.stdout.removeListener('data',process);}
-			setTimeout(function(){
-				/* Little delay for stderr to arrive */
-				cb({'changes':parseInt(buffer[1].substr(1)),'id':parseInt(buffer[3].substr(1))});
-			},1);
+			db.stdout.removeListener('data',process);
+			db.stderr.removeListener('data',error);
+			/* Little delay for stderr to arrive */
+			cb({'changes':parseInt(buffer[1].substr(1)),'id':parseInt(buffer[3].substr(1))});
 		};
 		var error = function(data){
 			data = data.toString();
@@ -102,11 +101,11 @@ var sqlite3 = {
 		sqlite3.exec(db,q,cb);
 	},
 	insertInto: function(db,tableName,rows,cb,params){
-		/* Inserting in chunks of 50 elements */
+		/* Inserting in chunks of [limit] elements */
 		//FIXME: dependiendo de la version hay que crear las consultas diferentes
 		//FIXME: crear tabla 
 		var row = [];
-		var limit = 8;
+		var limit = 6000;
 		var i = 0,j = 0;
 		var q = '',ids = '',values = '';
 
