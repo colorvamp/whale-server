@@ -51,7 +51,7 @@ var sqlite3 = {
 			rows.push(row);
 		});
 	},
-	exec: function(db,q,cb,nowait){
+	exec: function(db,q,cb){
 		sqlite3.v.lastQueryError = '';
 		sqlite3.v.lastQueryErrno = 0;
 		var buffer = '';

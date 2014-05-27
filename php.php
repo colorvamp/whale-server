@@ -1,6 +1,7 @@
 <?php
 	$_POST = $_GET = $_COOKIE = $_SESSION = $_SERVER = array();
 	$p = realpath(dirname(__FILE__)).'/';
+	set_include_path($p.'php.api/');
 	$controller = realpath('controllers/'.$argv[1].'.php');
 	if(!file_exists($controller)){echo json_encode(array('errorDescription'=>'CONTROLLER_NOT_FOUND'));return false;}
 	if(function_exists('header_register_callback')){
