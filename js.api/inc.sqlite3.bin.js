@@ -52,8 +52,8 @@ var sqlite3 = {
 		});
 	},
 	exec: function(db,q,cb){
-		sqlite3.v.lastQueryError = '';
-		sqlite3.v.lastQueryErrno = 0;
+		var queryError = '';
+		var queryErrno = 0;
 		var buffer = '';
 		var process = function(data){
 			buffer += data.toString();
@@ -64,11 +64,12 @@ var sqlite3 = {
 			db.stdout.removeListener('data',process);
 			db.stderr.removeListener('data',error);
 			/* Little delay for stderr to arrive */
-			cb({'changes':parseInt(buffer[1].substr(1)),'id':parseInt(buffer[3].substr(1))});
+			cb({'changes':parseInt(buffer[1].substr(1)),'id':parseInt(buffer[3].substr(1)),'error':queryError,'errno':queryErrno});
 		};
 		var error = function(data){
 			data = data.toString();
-			if(data.match(/no such table: .*/)){sqlite3.v.lastQueryError = 'TABLE_NOT_FOUND';sqlite3.v.lastQueryErrno = 19;}
+			if(data.match(/no such table: .*/)){queryError = 'TABLE_NOT_FOUND';queryErrno = 19;}
+			if(data.match(/ ([^ ]+) may not be NULL/)){queryError = 'FIELD_CONSTRAINT';queryErrno = 201;}
 			//console.log(data);
 		};
 		db.stderr.on('data',error);
@@ -122,10 +123,10 @@ var sqlite3 = {
 		}
 
 		var handler = function(res){
-			if(sqlite3.v.lastQueryErrno == 19){
+			if(res.errno == 19){
 				if(!sqlite3.v.tables[tableName]){/*FIXME: error*/return cb({});}
 				sqlite3.createTable(db,tableName,sqlite3.v.tables[tableName],function(){
-					console.log('tabla creada');
+					//console.log('tabla creada');
 					/* Once the table is available, retry the query */
 					return sqlite3.exec(db,q,handler);
 				});
