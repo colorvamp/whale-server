@@ -14,24 +14,27 @@
 	};
 	global.$type = function(obj){return typeof(obj);}
 
+	global._api = __dirname+'/js.api/';
+	global._cookie = {};
+	global._template = {};
+
 	var http = require('http'),
 	fs = require('fs'),
 	util = require('util'),
 	exec = require('child_process').exec,
 	spawn = require('child_process').spawn,
-	whale = require('./whale.js').whale;
+	cookie = require(_api+'inc.cookie'),
+	whale = require('./whale.js').whale,
+	owhale = require('./whale.js')._whale;
 
 	global._whale = whale;
-	global._api = __dirname+'/js.api/';
-	global._template = {};
+	global.owhale = owhale;
 
 	/**** INI-LISTENER ****/
 	var server = http.createServer(function(req,res){
 		if(!req.headers || !req.headers.host){return whale.page.p400(res);}
 		whale.parse.request(req);
-req.on('connect',function(rew,socket,head){
-		console.log(1);
-	});
+
 
 var i = false;
 
@@ -44,14 +47,20 @@ var i = false;
 			api: './servers/'+host+'/api/'
 		};
 global._whale.res = res;
+global._whale.socket = req.socket;
 
 
 		if(!fs.existsSync(path.controllers)){return whale.page.err(res);}
+		global._cookie = new cookie(req.headers.cookie);
+console.log(_cookie.get());
+
+
 		var params = whale.get.uri();
 		params = params.split('/').clean('');
 
 		/*** INI-Static resources ***/
 		var resources = false;
+//FIXME:
 		if(params[0] == 'r' && (resource = path.base+params.slice(1).join('/')) && fs.existsSync(resource)){
 			i = resource.lastIndexOf('.');
 			var ext = resource.substr(i+1);

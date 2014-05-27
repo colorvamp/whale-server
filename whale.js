@@ -1,6 +1,8 @@
 var url = require('url');
 var qs = require('querystring');
-var _whale = function(){
+var events = require('events');
+
+var whale1 = function(){
 	var whale = this;
 	this.v = {
 		host: false,
@@ -90,5 +92,34 @@ var _whale = function(){
 		
 	};
 };
+whale1.prototype.__proto__ = events.EventEmitter.prototype;
 
-exports.whale = new _whale();
+var whale = {
+	server: {
+		end: function(data){
+			var 	cookies = _cookie.get('new'),
+				i = 0;
+
+			/* INI-Header */
+			var header = 'HTTP/1.1 200 OK\r\n';
+			for(i in cookies){
+				header += 'Set-Cookie: '+escape(cookies[i].name)+'='+escape(cookies[i].value)+';Path=/\r\n';
+			}
+			/* END-Header */
+			header += '\r\n\r\n';
+
+			_whale.socket.write(header);
+			_whale.socket.write(data);
+			_whale.socket.end();
+		}
+	},
+	on: {
+		end: function(data){
+			console.log(1);
+			console.log(data);
+		}
+	}
+}
+
+module.exports._whale = whale;
+module.exports.whale = new whale1();

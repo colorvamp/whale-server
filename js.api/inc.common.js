@@ -48,19 +48,21 @@ var common = {
 		},
 		render: function(t,callback){
 			if(t.substr(-3)){t += '.php';}
-			if(!callback){callback = function(blob){_whale.res.end(blob);};}
+			if(!callback){callback = function(blob){owhale.server.end(blob);};}
 			var pool = (global._template) ? global._template : {};
+			if(!pool.MAIN){pool.MAIN = false;}
 
-			var b = 'base/base.app.full.php';
+			var b = 'base.php';
 			var base = false;
 			data = fs.readFile(_whale.path.views+t,'utf-8',function(err,data){
 				pool.MAIN = data;
-				if(!base){return;}
+				if(base === false){return;}
 				callback(common.template.replace(base,pool));
 			});
 			data = fs.readFile(_whale.path.views+b,'utf-8',function(err,data){
 				base = data;
-				if(!pool.MAIN){return;}
+				if(err && err.errno == 34){base = true;return callback(common.template.replace('',pool));}
+				if(pool.MAIN === false){return;}
 				callback(common.template.replace(base,pool));
 			});
 			return true;
