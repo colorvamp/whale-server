@@ -52,8 +52,9 @@ global._whale.socket = req.socket;
 
 		if(!fs.existsSync(path.controllers)){return whale.page.err(res);}
 		global._cookie = new cookie(req.headers.cookie);
-console.log(_cookie.get());
-
+		//console.log(_cookie.get());
+		//console.log('URI: '+whale.get.uri());
+		//console.log('REF: '+whale.get.referer());
 
 		var params = whale.get.uri();
 		params = params.split('/').clean('');
@@ -119,7 +120,8 @@ var query = whale.get.url().query;
 
 		function decider(){
 			if(controllerPath.substr(-3) == '.js'){
-				_template.baseURL = 'http://'+whale.get.host()+'/';
+				//FIXME: no siempre
+				_template.baseURL = 'http://'+whale.get.host()+':'+whale.get.port()+'/';
 
 				//FIXME: implementar timeout
 				/* Javascript backend */
@@ -129,7 +131,7 @@ var query = whale.get.url().query;
 					if(!command){command = 'main';}
 					if(!c.controller[command]){params.unshift(command);command = 'main';}
 					if(command == 'main' && !c.controller[command]){whale.page.err(res);}
-					c.controller[command].apply(params);
+					c.controller[command].apply(null,params);
 				}catch(err){
 					console.log(err);
 					whale.page.err(res);

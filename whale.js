@@ -13,6 +13,7 @@ var whale1 = function(){
 		uri: '',
 		post: false,
 		cookie: {},
+		referer: false,
 	};
 	this.page = {
 		p400: function(res){res.writeHead(400);return res.end('<h1>Bad Request</h1>');},
@@ -37,7 +38,8 @@ var whale1 = function(){
 		url: function(){return whale.v.url;},
 		uri: function(){return whale.v.uri;},
 		post: function(){return whale.v.post;},
-		cookie: function(){return whale.v.cookie;}
+		cookie: function(){return whale.v.cookie;},
+		referer: function(){return whale.v.referer;}
 	};
 	this.parse = {
 		request: function(data){
@@ -48,6 +50,7 @@ var whale1 = function(){
 			whale.v.ip = data.connection.remoteAddress || data.socket.remoteAddress || data.connection.socket.remoteAddress || data.headers['x-forwarded-for'];
 			if(data.url){whale.parse.url(data.url)}
 			if(data.headers.cookie){whale.parse.cookie(data.headers.cookie);}
+			if(data.headers.referer){whale.v.referer = data.headers.referer;}
 			if(data.method){whale.v.method = data.method;}
 			whale.v.post = false;
 		},

@@ -40,11 +40,12 @@ var common = {
 			common.template.iteration++;
 			return common.template.replace(blob,pool,reps);
 		},
-		load: function(t){
+		load: function(t,data){
 			//FIXME: de momento .php
 			if(t.substr(-3)){t += '.php';}
-			var data = fs.readFileSync(_whale.path.views+t);
-			return data;
+			var pool = (data) ? data : {};
+			var blob = fs.readFileSync(_whale.path.views+t);
+			return common.template.replace(blob.toString(),pool);
 		},
 		render: function(t,callback){
 			if(t.substr(-3)){t += '.php';}
