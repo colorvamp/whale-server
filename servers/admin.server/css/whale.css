@@ -1,9 +1,11 @@
-*{font-family:Arial;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;}
+*{font-family:Arial;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;border:0;padding:0;margin:0;}
 code{display:block;background:#f8f8f8;border:1px solid #ddd;border-radius:3px;padding:10px;margin:8px 0;color:#444;}
 
 
 
 .wrapper{max-width:900px;margin:auto;}
+.header{padding:20px;}
+.footer{padding:20px;font-size:11px;color:#444;}
 
 /* INI-dropdown */
 .dropdown-toggle{position:relative;}
@@ -52,3 +54,18 @@ div.widget-calendar.disabled > .caret{border-top-color:#baabb1;}
 div.widget-calendar.orangeSimpleButton{width:auto;min-width:150px;}
 div.widget-calendar.orangeSimpleButton > .indicator{display:none;}
 /* END-buttons */
+
+
+.commit-node{position:relative;background:#fcfce2;border-left:1px solid #c5d5dd;border-right:1px solid #c5d5dd;padding:10px;}
+.commit-node:nth-child(even){background:white;}
+.commit-node:first-child{border-top:1px solid #c5d5dd;border-top-left-radius:3px;border-top-right-radius:3px;}
+.commit-node:last-child{border-bottom:1px solid #c5d5dd;border-bottom-left-radius:3px;border-bottom-right-radius:3px;}
+.commit-node + .commit-node{border-top:1px solid #e2eaee;}
+.commit-node > .avatar{position:absolute;}
+.commit-node > .avatar img{height:60px;border-radius:2px;}
+.commit-node > .wrapper{margin-left:70px;}
+.commit-node h4{font-size:16px;line-height:18px;margin-bottom:3px;}
+.commit-node p{font-size:13px;color:#666;}
+.commit-node > .wrapper > .btn-group{margin-top:3px;}
+
+

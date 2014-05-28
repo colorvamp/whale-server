@@ -44,7 +44,9 @@ var common = {
 			//FIXME: de momento .php
 			if(t.substr(-3)){t += '.php';}
 			var pool = (data) ? data : {};
-			var blob = fs.readFileSync(_whale.path.views+t);
+			var file = _whale.path.views+t;
+			if(!fs.existsSync(file)){return '';}
+			var blob = fs.readFileSync(file);
 			return common.template.replace(blob.toString(),pool);
 		},
 		render: function(t,callback){

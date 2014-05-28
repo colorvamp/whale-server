@@ -1,3 +1,3 @@
 	<section>
-		aaa
+		{%commits.html.list%}
 	</section>
