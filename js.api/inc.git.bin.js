@@ -1,8 +1,22 @@
 var exec = require('child_process').exec;
+var fs = require('fs');
 
 var git = function(dir){
 	//FIXME: validar que es un repositorio git
 	this.dir = dir;
+};
+git.prototype.init = function(cb){
+	function puts(error,stdout,stderr){
+		if(stdout.indexOf('Initialized empty Git repository in ') == -1){
+			return cb(stdout);
+		}
+		cb(false);
+	}
+	var d = this.dir;
+	if(d.substr(-6) == '/.git/'){d = d.substr(0,d.length-5);}
+	//FIXME: eliminar el final mejor
+	if(!fs.existsSync(d)){return cb(false);}
+	exec('git init "'+d+'"',puts);
 };
 git.prototype.branch = function(cb){
 	function puts(error,stdout,stderr){

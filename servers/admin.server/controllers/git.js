@@ -27,14 +27,31 @@ git.domain = function(domain){
 	var domainPath = __dirname+'/../../'+domain+'/';
 	var gitPath = domainPath+'.git/';
 	/* Validate domain */
-	if(!domain || !fs.existsSync(domainPath) || !fs.existsSync(gitPath)){
+	if(!domain || !fs.existsSync(domainPath)){
 		//FIXME: error 404 o lo que sea
 		return common.template.render('git');
 	}
 
-
 	try{var gitOB = require(_api+'inc.git.bin');}
 	catch(err){return common.template.render('git/error.no.module');}
+
+	if(global._post.hasOwnProperty('subcommand')){switch(global._post.subcommand){
+		case 'git.init':
+			var	git = new gitOB(gitPath);
+			git.init(function(data){
+
+			});
+			//FIXME: 
+			//return common.r('http://google.es');
+			break;
+	};return false;}
+
+	if(!fs.existsSync(gitPath)){
+		_template.PAGE = {'TITLE':'Git - '+domain+' - whale-server'};
+		//FIXME: error 404 o lo que sea
+		return common.template.render('git/init');
+	}
+
 	_template.PAGE = {'TITLE':'Git - '+domain+' - whale-server'};
 	_template.commits = {'html':{'list':''}};
 

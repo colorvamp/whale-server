@@ -70,6 +70,12 @@ var common = {
 			});
 			return true;
 		}
+	},
+	r: function(loc,code){
+		if(!code){code = 302;}
+		if(loc.substr(0,4) == 'http'){_header.set('Location: '+loc,code);owhale.server.end('');}
+		//FIXME :falta este caso
+		//header('Location: http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'].$hash,true,$code);exit;
 	}
 };
 

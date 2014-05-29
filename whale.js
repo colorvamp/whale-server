@@ -104,15 +104,23 @@ var whale = {
 				i = 0;
 
 			/* INI-Header */
-			var header = 'HTTP/1.1 200 OK\r\n';
+			var headers = _header.get();
+			var code = (headers.status) ? headers.status : 200;
+			//FIXME: el codigo de estatus
+			var header = 'HTTP/1.1 '+code+' OK\r\n';
 			for(i in cookies){
-				header += 'Set-Cookie: '+escape(cookies[i].name)+'='+escape(cookies[i].value)+';Path=/\r\n';
+				header += 'set-cookie: '+escape(cookies[i].name)+'='+escape(cookies[i].value)+';Path=/\r\n';
 			}
-			/* END-Header */
+			for(i in headers){
+				if(i == 'status'){continue;}
+				header += i+': '+headers[i]+'\r\n';
+			}
 			header += '\r\n\r\n';
+			delete headers;
+			/* END-Header */
 
 			_whale.socket.write(header);
-			_whale.socket.write(data);
+			if(data){_whale.socket.write(data);}
 			_whale.socket.end();
 		}
 	},
@@ -123,6 +131,24 @@ var whale = {
 		}
 	}
 }
+
+/*** INI-HEADERS ***/
+whale.header = function(){
+	this.headers = {};	
+};
+whale.header.prototype.set = function(loc,code){
+	var 	q = loc.indexOf(':'),
+		name = loc.substr(0,q),
+		value = loc.substr(q+1);
+
+	if(!code){code = 302;}
+	this.headers[name.trim().toLowerCase()] = value.trim();
+	this.headers['status'] = code;
+};
+whale.header.prototype.get = function(){
+	return this.headers;
+};
+/*** END-HEADERS ***/
 
 module.exports._whale = whale;
 module.exports.whale = new whale1();

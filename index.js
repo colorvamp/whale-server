@@ -16,6 +16,8 @@
 
 	global._api = __dirname+'/js.api/';
 	global._cookie = {};
+	global._post = {};
+	global._header = {};
 	global._template = {};
 
 	var http = require('http'),
@@ -29,6 +31,10 @@
 
 	global._whale = whale;
 	global.owhale = owhale;
+
+/*process.on('uncaughtException', function (err) {
+  console.log('Caught exception: ' + err);
+});//*/
 
 	/**** INI-LISTENER ****/
 	var server = http.createServer(function(req,res){
@@ -51,6 +57,7 @@ global._whale.socket = req.socket;
 
 
 		if(!fs.existsSync(path.controllers)){return whale.page.err(res);}
+		global._header = new owhale.header();
 		global._cookie = new cookie(req.headers.cookie);
 		//console.log(_cookie.get());
 		//console.log('URI: '+whale.get.uri());
@@ -109,6 +116,7 @@ var query = whale.get.url().query;
 			req.on('data',function(chunk){data += chunk;});
 			req.on('end',function(){
 				var post = whale.parse.query(data);
+				global._post = post;
 				return decider();
 			});
 			return false;
@@ -138,6 +146,7 @@ var query = whale.get.url().query;
 				}
 				delete require.cache[require.resolve(controllerPath)];
 				delete require.cache[require.resolve(_api+'inc.common.js')];
+				delete require.cache[require.resolve(_api+'inc.git.bin.js')];
 				return false;
 			}else{
 				var php = {

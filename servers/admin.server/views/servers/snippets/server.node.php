@@ -1,4 +1,4 @@
-<article>
+<article class="server-node">
 	<h4>{%domainName%}</h4>
 	<div class="btn-group">
 		<div class="btn">
