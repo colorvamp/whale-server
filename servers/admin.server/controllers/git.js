@@ -75,6 +75,7 @@ git.commit = function(domain,commit){
 	var	git = new gitOB(gitPath);
 
 	git.show(commit,function(commit){
+console.log(commit);
 		_template.commit.html.chunks = commit.commitDiff;
 		return common.template.render('git/commit');
 	});

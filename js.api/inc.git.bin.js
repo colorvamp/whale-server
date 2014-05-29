@@ -38,17 +38,17 @@ git.prototype.show = function(hash,cb,params){
 		var 	commit = {},
 			author = {};
 
-		stdout = stdout.replace(/commit ([^\n ]+)\n(Merge: ([^\n ]+) ([^\n ]+)\n|)Author: ([^\n]+)\nDate:[ ]+([^\n]+)\n\n[ ]+([^\n]*)\n/g,function(p0,pHash,p2,p3,p4,pAuthorString,p6,p7){
-			commit = {'commitHash':pHash,'commitAuthorString':pAuthorString,'commitDateString':p6,'commitMessage':p7};
-			author = pAuthorString.match(/([^<]+) <([^>]+)>/);
+		//stdout = stdout.replace(/commit ([^\n ]+)\ntree ([^\n ]+)\nparent ([^\n ]+)\nauthor: ([^\n]+) ([0-9]+ \+[0-9]+)\ncommiter: ([^\n]+) ([0-9]+ \+[0-9]+)\n.*?\n\n[ ]+([^\n]*)\n/g,function(p0,pHash,pTree,pParent,p2,p3,p4,pAuthorString,p6,p7){
+		stdout = stdout.replace(/commit ([^\n ]+)\ntree ([^\n ]+)\nparent ([^\n ]+)\nauthor ([^\n]+) ([0-9]+ \+[0-9]+)\ncommitter ([^\n]+) ([0-9]+ \+[0-9]+)\n\n[ ]+([^\n]*)\n\n/g,function(p0,pHash,pTree,pParent,pAuthor,p1,pCommiter,p2,pMessage){
+			commit = {'commitHash':pHash,'commitTree':pTree,'commitParent':pParent,'commitAuthorString':pAuthor,'commitCommiterString':pCommiter,'commitMessage':pMessage};
+			author = pAuthor.match(/([^<]+) <([^>]+)>/);
 			if(author){commit.commitAuthorName = author[1];commit.commitAuthorMail = author[2];}
-			if(p2){commit['commitMerge'] = [p3,p4];}
 			return '';
 		});
 		commit.commitDiff = stdout;
 		cb(commit);
 	}
-	exec('git --git-dir "'+this.dir+'" show '+hash,puts);
+	exec('git --git-dir "'+this.dir+'" show --pretty=raw '+hash,puts);
 };
 
 module.exports = git;
