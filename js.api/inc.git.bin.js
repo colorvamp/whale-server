@@ -38,7 +38,6 @@ git.prototype.show = function(hash,cb,params){
 		var 	commit = {},
 			author = {};
 
-		//stdout = stdout.replace(/commit ([^\n ]+)\ntree ([^\n ]+)\nparent ([^\n ]+)\nauthor: ([^\n]+) ([0-9]+ \+[0-9]+)\ncommiter: ([^\n]+) ([0-9]+ \+[0-9]+)\n.*?\n\n[ ]+([^\n]*)\n/g,function(p0,pHash,pTree,pParent,p2,p3,p4,pAuthorString,p6,p7){
 		stdout = stdout.replace(/commit ([^\n ]+)\ntree ([^\n ]+)\nparent ([^\n ]+)\nauthor ([^\n]+) ([0-9]+ \+[0-9]+)\ncommitter ([^\n]+) ([0-9]+ \+[0-9]+)\n\n[ ]+([^\n]*)\n\n/g,function(p0,pHash,pTree,pParent,pAuthor,p1,pCommiter,p2,pMessage){
 			commit = {'commitHash':pHash,'commitTree':pTree,'commitParent':pParent,'commitAuthorString':pAuthor,'commitCommiterString':pCommiter,'commitMessage':pMessage};
 			author = pAuthor.match(/([^<]+) <([^>]+)>/);
@@ -49,6 +48,21 @@ git.prototype.show = function(hash,cb,params){
 		cb(commit);
 	}
 	exec('git --git-dir "'+this.dir+'" show --pretty=raw '+hash,puts);
+};
+git.prototype.tree = function(cb,params){
+	//FIXME: seguramente habría que hacerlo con spawn y un buffer mutable
+	function puts(error,stdout,stderr){
+		var 	tree = [],
+			file = {};
+
+		stdout.replace(/([0-9]+) ([^ ]+) ([^ \t\n]+)[ \t]*([^\n]+)\n/g,function(p0,fModes,fType,fHash,fPath){
+			file = {'fileModes':fModes,'fileType':fType,'fileHash':fHash,'filePath':fPath};
+			tree.push(file);
+			return '';
+		});
+		cb(tree);
+	}
+	exec('git --git-dir "'+this.dir+'" ls-tree --full-tree -r HEAD',puts);
 };
 
 module.exports = git;
