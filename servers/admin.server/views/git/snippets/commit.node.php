@@ -4,21 +4,9 @@
 		<h4>{%commitText%}</h4>
 		<p>{%commitAuthor%} authored </p>
 		<div class="btn-group">
-			<div class="btn mini">
-				<i class="icon-signal"></i>
-				Stats
-			</div>
-			<div class="btn mini">
+			<a class="btn mini" href="{%baseURL%}git/{%domainName%}/{%commitHash%}">
 				<i class="icon-eye-open"></i> 
 				View
-			</div>
-			<div class="btn mini">
-				<i class="icon-cogs"></i>
-				Admin
-			</div>
-			<a class="btn mini" href="{%baseURL%}git/{%domainName%}">
-				<i class="icon-code-fork"></i>
-				Git
 			</a>
 		</div>
 	</div>
