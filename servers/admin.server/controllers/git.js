@@ -32,61 +32,30 @@ git.domain = function(domain){
 		return common.template.render('git');
 	}
 
-	try{var git = require('nodegit');}
+
+	try{var gitOB = require(_api+'inc.git.bin');}
 	catch(err){return common.template.render('git/error.no.module');}
 	_template.PAGE = {'TITLE':'Git - '+domain+' - whale-server'};
 	_template.commits = {'html':{'list':''}};
 
-	var 	open = git.Repo.open;
-	var 	crypto = require('crypto');
-	var 	commitMailSum = false;
+	var	git = new gitOB(gitPath),
+		crypto = require('crypto'),
+		i = 0;
+	var 	commitMailSum = false,
+		commitMail = false;
 
-	// Open the repository directory.
-	open(gitPath,function(err,repo){
-		if(err){
-			//FIXME: error 404 o lo que sea
-			return common.template.render('git');
-		}
-
-		var count = 0;
-		var onCommit = function(commit){
-				// Disregard commits past 9.
-				if(++count >= 9){
-					return;
-				}
-
-				var author = commit.author();
-				commitMailSum = crypto.createHash('md5').update(author.email()).digest('hex');
-				_template.commits.html.list += common.template.load('git/snippets/commit.node',{'baseURL':_template.baseURL,'domainName':domain,'commitText':commit.message(),'commitAuthor':commit.author(),'commitMailSum':commitMailSum,'commitHash':commit.sha()});
-
-				// Display author information.
-				//console.log("Author:\t" + author.name() + " <", author.email() + ">");
-				// Show the commit date.
-				//console.log("Date:\t" + commit.date());
-				// Give some space and show the message.
-				//console.log("\n    " + commit.message());
-			};
-
-		// Open the master branch.
-		repo.getMaster(function(err,branch){
-			if(err){
-				//FIXME: error 404 o lo que sea
-				return common.template.render('git');
-			}
-
-			// Create a new history event emitter.
-			var history = branch.history();
-			// Create a counter to only show up to 9 entries.
-			// Listen for commit events from the history.
-			history.on('commit',onCommit);
-			history.on('end',function(err){
-				return common.template.render('git');
-			});
-
-			// Start emitting events.
-			history.start();
+	git.log(function(commits){
+		console.log(commits);
+		commits.forEach(function(commit,index){
+			commitMail = (commit.commitAuthorMail) ? commit.commitAuthorMail : '';
+			commitMailSum = crypto.createHash('md5').update(commitMail).digest('hex');
+			_template.commits.html.list += common.template.load('git/snippets/commit.node',{'baseURL':_template.baseURL,'domainName':domain,'commitMessage':commit.commitMessage,'commitAuthor':commit.commitAuthorName,'commitMailSum':commitMailSum,'commitHash':commit.commitHash});
 		});
+
+		return common.template.render('git');
 	});
+
+	return false;
 };
 git.commit = function(domain,commit){
 	domain = domain.toString();
@@ -98,57 +67,19 @@ git.commit = function(domain,commit){
 		return common.template.render('git');
 	}
 
-	try{var git = require('nodegit');}
+	try{var gitOB = require(_api+'inc.git.bin');}
 	catch(err){return common.template.render('git/error.no.module');}
 	_template.PAGE = {'TITLE':'Git - '+domain+' - whale-server'};
-	_template.commits = {'html':{'list':''}};
-
-	var 	open = git.Repo.open;
-	var 	crypto = require('crypto');
-	var 	commitMailSum = false;
-
-
-	git.Repo.open(gitPath, function(error, repo) {
-  if (error) throw error;
-
-  repo.getCommit(commit, function(error, commit) {
-    if (error) throw error;
-
 	_template.commit = {'html':{'chunks':''}}
 
-    console.log('commit ' + commit.sha());
-    console.log('Author:', commit.author().name() + ' <' + commit.author().email() + '>');
-    console.log('Date:', commit.date());
-    console.log('\n ' + commit.message());
-//console.log(commit);
+	var	git = new gitOB(gitPath);
 
-		    commit.getDiff(function(error, diffList) {
-console.log(1);
-		      if (error) throw error;
-		      diffList.forEach(function(diff) {
-			diff.patches().forEach(function(patch) {
-				_template.commit.html.chunks += patch.oldFile().path()+' '+patch.newFile().path()+'\n';
-			  console.log("diff", patch.oldFile().path(), patch.newFile().path());
-			  patch.hunks().forEach(function(hunk) {
-				_template.commit.html.chunks += hunk.header().trim()+'\n';
-			    console.log(hunk.header().trim());
-			    hunk.lines().forEach(function(line) {
-				_template.commit.html.chunks += line.content.trim()+'\n';
-				console.log(11);
-			      console.log(String.fromCharCode(line.lineOrigin) + line.content.trim());
-			    });
-			  });
-			});
-		      });
+	git.show(commit,function(commit){
+		_template.commit.html.chunks = commit.commitDiff;
+		return common.template.render('git/commit');
+	});
 
-			return common.template.render('git/commit');
-		    });
-
-
-
-  });
-});
-
+	return false;
 };
 
 exports.controller = git;
