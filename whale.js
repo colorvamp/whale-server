@@ -1,3 +1,4 @@
+var fs = fs = require('fs');
 var url = require('url');
 var qs = require('querystring');
 var events = require('events');
@@ -97,58 +98,69 @@ var whale1 = function(){
 };
 whale1.prototype.__proto__ = events.EventEmitter.prototype;
 
-var whale = {
-	server: {
-		end: function(data){
-			var 	cookies = _cookie.get('new'),
-				i = 0;
 
-			/* INI-Header */
-			var headers = _header.get();
-			var code = (headers.status) ? headers.status : 200;
-			//FIXME: el codigo de estatus
-			var header = 'HTTP/1.1 '+code+' OK\r\n';
-			for(i in cookies){
-				header += 'set-cookie: '+escape(cookies[i].name)+'='+escape(cookies[i].value)+';Path=/\r\n';
-			}
-			for(i in headers){
-				if(i == 'status'){continue;}
-				header += i+': '+headers[i]+'\r\n';
-			}
-			header += '\r\n\r\n';
-			delete headers;
-			/* END-Header */
 
-			_whale.socket.write(header);
-			if(data){_whale.socket.write(data);}
-			_whale.socket.end();
+	var whale = function(host){
+		this.path = {
+			node: fs.realpathSync('./'),
+			base: './servers/'+host+'/',
+			controllers: './servers/'+host+'/controllers/',
+			views: './servers/'+host+'/views/',
+			api: './servers/'+host+'/api/'
 		}
-	},
-	on: {
-		end: function(data){
-			console.log(1);
-			console.log(data);
+		this.header = new _header(this);
+		this.server = new _server(this);
+	};
+
+	/*** INI-SERVER ***/
+	var _server = function(p){
+		extend(this,p);
+	};
+	_server.prototype.end = function(data){
+		var 	cookies = _owhale.cookies.get('new'),
+			i = 0;
+
+		/* INI-Header */
+		var headers = this.header.get();
+		var code = (headers.status) ? headers.status : 200;
+		//FIXME: el codigo de estatus
+		var header = 'HTTP/1.1 '+code+' OK\r\n'+
+		'Content-Type: text/html\r\n';
+		for(i in cookies){
+			header += 'set-cookie: '+escape(cookies[i].name)+'='+escape(cookies[i].value)+';Path=/\r\n';
 		}
+		for(i in headers){
+			if(i == 'status'){continue;}
+			header += i+': '+headers[i]+'\r\n';
+		}
+		header += '\r\n\r\n';
+		delete headers;
+		/* END-Header */
+
+		_owhale.socket.write(header);
+		if(data){_owhale.socket.write(data);}
+		_owhale.socket.end();
 	}
-}
+	/*** END-SERVER ***/
 
-/*** INI-HEADERS ***/
-whale.header = function(){
-	this.headers = {};	
-};
-whale.header.prototype.set = function(loc,code){
-	var 	q = loc.indexOf(':'),
-		name = loc.substr(0,q),
-		value = loc.substr(q+1);
+	/*** INI-HEADERS ***/
+	_header = function(p){
+		extend(this,p);
+		this.headers = {};
+	};
+	_header.prototype.set = function(loc,code){
+		var 	q = loc.indexOf(':'),
+			name = loc.substr(0,q),
+			value = loc.substr(q+1);
 
-	if(!code){code = 302;}
-	this.headers[name.trim().toLowerCase()] = value.trim();
-	this.headers['status'] = code;
-};
-whale.header.prototype.get = function(){
-	return this.headers;
-};
-/*** END-HEADERS ***/
+		if(!code){code = 302;}
+		this.headers[name.trim().toLowerCase()] = value.trim();
+		this.headers['status'] = code;
+	};
+	_header.prototype.get = function(){
+		return this.headers;
+	};
+	/*** END-HEADERS ***/
 
 module.exports._whale = whale;
 module.exports.whale = new whale1();

@@ -44,25 +44,26 @@ var common = {
 			//FIXME: de momento .php
 			if(t.substr(-3)){t += '.php';}
 			var pool = (data) ? data : {};
-			var file = _whale.path.views+t;
+			var file = _owhale.path.views+t;
 			if(!fs.existsSync(file)){return '';}
 			var blob = fs.readFileSync(file);
 			return common.template.replace(blob.toString(),pool);
 		},
 		render: function(t,callback){
 			if(t.substr(-3)){t += '.php';}
-			if(!callback){callback = function(blob){owhale.server.end(blob);};}
-			var pool = (global._template) ? global._template : {};
+			if(!callback){callback = function(blob){_owhale.server.end(blob);};}
+			var pool = (_template) ? _template : {};
 			if(!pool.MAIN){pool.MAIN = false;}
 
 			var b = 'base.php';
 			var base = false;
-			data = fs.readFile(_whale.path.views+t,'utf-8',function(err,data){
+			common.template.iteration = 0;
+			data = fs.readFile(_owhale.path.views+t,'utf-8',function(err,data){
 				pool.MAIN = data;
 				if(base === false){return;}
 				callback(common.template.replace(base,pool));
 			});
-			data = fs.readFile(_whale.path.views+b,'utf-8',function(err,data){
+			data = fs.readFile(_owhale.path.views+b,'utf-8',function(err,data){
 				base = data;
 				if(err && err.errno == 34){base = true;return callback(common.template.replace('',pool));}
 				if(pool.MAIN === false){return;}

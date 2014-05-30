@@ -62,7 +62,7 @@ git.domain = function(domain){
 		commitMail = false;
 
 	git.log(function(commits){
-		console.log(commits);
+		//console.log(commits);
 		commits.forEach(function(commit,index){
 			commitMail = (commit.commitAuthorMail) ? commit.commitAuthorMail : '';
 			commitMailSum = crypto.createHash('md5').update(commitMail).digest('hex');
@@ -92,7 +92,7 @@ git.commit = function(domain,commit){
 	var	git = new gitOB(gitPath);
 
 	git.show(commit,function(commit){
-console.log(commit);
+		//console.log(commit);
 		_template.commit.html.chunks = commit.commitDiff;
 		return common.template.render('git/commit');
 	});
