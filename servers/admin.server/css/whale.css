@@ -58,7 +58,7 @@ div.widget-calendar.orangeSimpleButton > .indicator{display:none;}
 /* END-buttons */
 
 
-.server-node{position:relative;background:#fcfce2;border-left:1px solid #c5d5dd;border-right:1px solid #c5d5dd;padding:10px;}
+.server-node{position:relative;background:#fafafa;border-left:1px solid #c5d5dd;border-right:1px solid #c5d5dd;padding:10px;}
 .server-node:nth-child(even){background:white;}
 .server-node:first-child{border-top:1px solid #c5d5dd;border-top-left-radius:3px;border-top-right-radius:3px;}
 .server-node:last-child{border-bottom:1px solid #c5d5dd;border-bottom-left-radius:3px;border-bottom-right-radius:3px;}
@@ -70,7 +70,7 @@ div.widget-calendar.orangeSimpleButton > .indicator{display:none;}
 .server-node p{font-size:13px;color:#666;}
 .server-node > .wrapper > .btn-group{margin-top:3px;}
 
-.commit-node{position:relative;background:#fcfce2;border-left:1px solid #c5d5dd;border-right:1px solid #c5d5dd;padding:10px;}
+.commit-node{position:relative;background:#fafafa;border-left:1px solid #c5d5dd;border-right:1px solid #c5d5dd;padding:10px;}
 .commit-node:nth-child(even){background:white;}
 .commit-node:first-child{border-top:1px solid #c5d5dd;border-top-left-radius:3px;border-top-right-radius:3px;}
 .commit-node:last-child{border-bottom:1px solid #c5d5dd;border-bottom-left-radius:3px;border-bottom-right-radius:3px;}

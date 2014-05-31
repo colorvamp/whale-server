@@ -1,6 +1,6 @@
 	<section>
-		Module not found, please install nodegit
+		Module not found
 		<code>
-			npm install nodegit
+			Module not found
 		</code>
 	</section>

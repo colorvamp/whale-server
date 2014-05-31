@@ -20,6 +20,7 @@
 
 	var http = require('http'),
 	fs = require('fs'),
+	//path = require('path'),
 	util = require('util'),
 	exec = require('child_process').exec,
 	spawn = require('child_process').spawn,
@@ -60,8 +61,19 @@ _whale.cookies = _cookies;
 
 		/*** INI-Static resources ***/
 		var resources = false;
-//FIXME:
-		if(_params[0] == 'r' && (resource = _whale.path.base+_params.slice(1).join('/')) && fs.existsSync(resource)){
+		if(_params[0] == 'r' && (resource = fs.realpathSync(_whale.path.base+_params.slice(1).join('/'))) && fs.existsSync(resource)){do{
+			/* A domain can only access its own resources */
+			if(resource.indexOf(_whale.path.base) < 0){break;}
+			/* INI-Protected directories */
+			if(resource.indexOf(_whale.path.controllers) > -1 || 
+				resource.indexOf(_whale.path.views) > -1 ||
+				resource.indexOf(_whale.path.api) > -1 || 
+				resource.indexOf(_whale.path.db) > -1){break;}
+			/* END-Protected directories */
+			
+			//console.log(resource);
+			//console.log(_whale.path.base);
+
 			i = resource.lastIndexOf('.');
 			var ext = resource.substr(i+1);
 			var mimetype = 'text/html';
@@ -77,7 +89,7 @@ _whale.cookies = _cookies;
 			s.once('fd',function(){res.writeHead(200,{'Content-Type':mimetype});});
 			s.pipe(res);
 			return false;
-		}
+		}while(false);}
 		/*** END-Static resources ***/
 
 		/*** INI-Dispatcher ***/
@@ -131,7 +143,7 @@ _whale.cookies = _cookies;
 					if(!command){command = 'main';}
 					if(!c.controller[command]){_params.unshift(command);command = 'main';}
 					if(command == 'main' && !c.controller[command]){whale.page.err(res);}
-					c.controller[command].apply(null,_params);
+					c.controller[command].apply({'_controller':c.controller},_params);
 				}catch(err){
 					console.log(err);
 					whale.page.err(res);
