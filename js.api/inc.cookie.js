@@ -9,6 +9,7 @@ cookie.prototype.parse = function(data){
 	var elems = data.replace(/;[ ]?/g,';').split(';');if($is.empty(elems)){return this.cookieOBs;}
 	for(var i = 0,l = elems.length;i < l;i++){
 		elem = elems[i].match(/([^=]*)=(.*)/);
+		if(!elem){continue;}
 		this.cookieOBs[unescape(elem[1])] = {'value':unescape(elem[2])};
 	}
 	return this.cookieOBs;

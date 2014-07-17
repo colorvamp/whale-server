@@ -38,7 +38,6 @@
 		if(!req.headers || !req.headers.host){return whale.page.p400(res);}
 		whale.parse.request(req);
 
-
 var i = false;
 
 		var host = whale.get.host();
@@ -49,7 +48,7 @@ global._owhale = _whale;
 _whale.res = res;
 _whale.socket = req.socket;
 
-		var _cookies = new cookie(req.headers.cookie);
+		var _cookies = new cookie( req.headers.cookie == 'undefined' ? '' : req.headers.cookie );
 _whale.cookies = _cookies;
 
 		//console.log(_cookie.get());
@@ -91,6 +90,8 @@ _whale.cookies = _cookies;
 			return false;
 		}while(false);}
 		/*** END-Static resources ***/
+
+		global._lib = _whale.path.api;
 
 		/*** INI-Dispatcher ***/
 		do{

@@ -83,10 +83,13 @@ var whale1 = function(){
 		},
 		cookie: function(data){
 			var cookies = {},elem = false;
-			var elems = data.replace(/;[ ]?/g,';').split(';');if($is.empty(elems)){return (whale.v.cookie = cookies);}
+			var elems = data.replace(/;[ ]?/g,';').split(';');
+			if($is.empty(elems)){return (whale.v.cookie = cookies);}
+
 			var count = elems.length;
 			for(var i = 0;i < count;i++){
 				elem = elems[i].match(/([^=]*)=(.*)/);
+				if(!elem){continue;}
 				cookies[unescape(elem[1])] = unescape(elem[2]);
 			}
 			return (whale.v.cookie = cookies);
@@ -103,11 +106,12 @@ whale1.prototype.__proto__ = events.EventEmitter.prototype;
 	var whale = function(host){
 		this.path = {
 			node: fs.realpathSync('./'),
-			base: './servers/'+host+'/',
-			controllers: './servers/'+host+'/controllers/',
-			views: './servers/'+host+'/views/',
-			api: './servers/'+host+'/api/'
-		}
+			base: fs.realpathSync('./servers/'+host+'/')+'/'
+		};
+		this.path.controllers = this.path.base+'controllers/';
+		this.path.views = this.path.base+'views/';
+		this.path.api = this.path.base+'api/';
+		this.path.db = this.path.base+'db/';
 		this.header = new _header(this);
 		this.server = new _server(this);
 	};
